@@ -1,6 +1,6 @@
 #include "AppDelegate.h"
-#include "GameScene2.h"
-//#include "GameScene.h"
+#include "HelloWorldScene.h"
+
 USING_NS_CC;
 
 AppDelegate::AppDelegate() {
@@ -22,23 +22,16 @@ void AppDelegate::initGLContextAttrs()
     GLView::setGLContextAttrs(glContextAttrs);
 }
 
-// If you want to use packages manager to install more packages, 
-// don't modify or remove this function
-static int register_all_packages()
-{
-    return 0; //flag for packages manager
-}
-
 bool AppDelegate::applicationDidFinishLaunching() {
     // initialize director
     auto director = Director::getInstance();
     auto glview = director->getOpenGLView();
     if(!glview) {
-        glview = GLViewImpl::create("My Game");
-		//glview->setDesignResolutionSize(800, 480, ResolutionPolicy::SHOW_ALL);
-		//director->setContentScaleFactor(480.0 / 320.0);
-		glview->setFrameSize(800, 480);
-        director->setOpenGLView(glview);
+		glview = GLViewImpl::create("My Game");
+		//glview->setDesignResolutionSize(1280, 720, ResolutionPolicy::SHOW_ALL);
+		//director->setContentScaleFactor(1280.0 / 720.0);
+		glview->setFrameSize(1280,600);
+		director->setOpenGLView(glview);
     }
 
     // turn on display FPS
@@ -47,10 +40,10 @@ bool AppDelegate::applicationDidFinishLaunching() {
     // set FPS. the default value is 1.0/60 if you don't call this
     director->setAnimationInterval(1.0 / 60);
 
-    register_all_packages();
+    FileUtils::getInstance()->addSearchPath("res");
 
     // create a scene. it's an autorelease object
-    auto scene = GameScene2::createScene();
+    auto scene = HelloWorld::createScene();
 
     // run
     director->runWithScene(scene);
@@ -73,4 +66,3 @@ void AppDelegate::applicationWillEnterForeground() {
     // if you use SimpleAudioEngine, it must resume here
     // SimpleAudioEngine::getInstance()->resumeBackgroundMusic();
 }
-
