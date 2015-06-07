@@ -2,10 +2,10 @@
 
 #include "cocos2d.h"
 #define MOVE_FORCE 200.0
-#define JUMP_IMPULSE 30000.0
+#define JUMP_IMPULSE 22000.0
 #define SCALEFACTOR 20.0
-#define FIREPOWER_INCREASEMENT 5.0
-#define MAX_FIREPOWER 10000.0
+#define FIREPOWER_INCREASEMENT 3.0
+#define MAX_FIREPOWER 4000.0
 
 USING_NS_CC;
 
@@ -21,13 +21,25 @@ public:
 		this->forced = 0;
 		this->firepower = 0;
 		this->addingPower = false;
+		this->lastPos = this->getPosition();
+		this->fireable = true;
+		this->fireAngle = Vec2(1, 1);
 
 		return true;
 	}
 
 	void update(float dt)
 	{
+
 		auto body = this->getPhysicsBody();
+		if (body->getVelocity().length() < 0.1f)
+		{
+			this->onGround = true;
+		}
+		else
+		{
+			this->onGround = false;
+		}
 		if (this->forced == 1)
 		{
 			body->applyForce(Vec2(MOVE_FORCE,0));
@@ -48,10 +60,19 @@ public:
 			this->firepower += FIREPOWER_INCREASEMENT * SCALEFACTOR;
 			if (this->firepower>MAX_FIREPOWER)
 			{
-				this->fire();
 				this->addingPower = false;
+				this->fire();
+				this->firepower = 0;
 			}
-			log("Firepower : %f", firepower);
+			//log("Firepower : %f", firepower);
+		}
+		auto child = this->getChildByName("bullet");
+		if (child != NULL)
+		{
+			if (child->getPosition().length() > spr->getContentSize().width/1.5)
+			{
+				this->saferange = false;
+			}
 		}
 
 	}
@@ -69,42 +90,43 @@ public:
 
 	void jump()
 	{
-		this->getPhysicsBody()->applyImpulse(Vec2(0,JUMP_IMPULSE));
+		if (onGround)
+		{
+			this->getPhysicsBody()->applyImpulse(Vec2(0, JUMP_IMPULSE));
+		}
 	}
 
 	void fire()
 	{
 		this->addingPower = false;
-		//
-		//
+
 		auto newBullet = Sprite::create("bullet.png");
 		auto bulletBody = PhysicsBody::createBox(newBullet->getContentSize());
-		bulletBody->setMass(20.0f);
-		bulletBody->setCategoryBitmask(0xFFFFFFF0);
-		bulletBody->setContactTestBitmask(0x00000001);
+		bulletBody->setMass(10.0f);
+		bulletBody->setCategoryBitmask(0xFFFFFFFF);
+		bulletBody->setContactTestBitmask(0x00000011);
 		newBullet->setPhysicsBody(bulletBody);
-		newBullet->setTag(2);
+		newBullet->setName("bullet");
 		this->addChild(newBullet);
+		this->saferange = true;
 		newBullet->setPosition(0, 0);
-		newBullet->getPhysicsBody()->applyImpulse(Vec2(firepower / 1.414, firepower / 1.414));
-		this->getPhysicsBody()->applyImpulse(Vec2(-firepower / 1.414, -firepower / 1.414));
-		//
+		newBullet->getPhysicsBody()->setVelocity(this->getPhysicsBody()->getVelocity());
+		newBullet->getPhysicsBody()->applyImpulse(firepower * fireAngle);
+		this->getPhysicsBody()->applyImpulse(-firepower * fireAngle);
 		this->firepower = 0;
+		this->fireable = false;
 	}
-
-	void startupboost()
-	{
-		if (forced == 1) this->getPhysicsBody()->applyImpulse(Vec2(1200.0, 0));
-		if (forced == -1) this->getPhysicsBody()->applyImpulse(Vec2(-1200.0, 0));
-	}
-
 	bool onGround;
 	int forced;
 	bool addingPower;
 	float firepower;
+	Vec2 lastPos;
+	bool fireable;
+	bool saferange;
 
 private:
 	
 	Sprite* spr;
+	Vec2 fireAngle;
 
 };
