@@ -35,9 +35,9 @@ bool AppDelegate::applicationDidFinishLaunching() {
     auto glview = director->getOpenGLView();
     if(!glview) {
         glview = GLViewImpl::create("My Game");
-		//glview->setDesignResolutionSize(800, 480, ResolutionPolicy::SHOW_ALL);
-		//director->setContentScaleFactor(480.0 / 320.0);
-		glview->setFrameSize(800, 480);
+		//glview->setDesignResolutionSize(1280, 720, ResolutionPolicy::SHOW_ALL);
+		//director->setContentScaleFactor(1280.0 / 720.0);
+		glview->setFrameSize(1280, 600);
         director->setOpenGLView(glview);
     }
 
@@ -73,4 +73,3 @@ void AppDelegate::applicationWillEnterForeground() {
     // if you use SimpleAudioEngine, it must resume here
     // SimpleAudioEngine::getInstance()->resumeBackgroundMusic();
 }
-
